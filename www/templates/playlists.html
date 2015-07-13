@@ -1,0 +1,11 @@
+<ion-view view-title="Playlists">
+  <ion-content>
+    <ion-list>
+      <ion-item ng-repeat="playlist in playlists" href="#/app/playlists/{{playlist.id}}">
+        {{playlist.title}}
+      </ion-item>
+    </ion-list>
+    <button class="button button-block button-positive" onClick="testLocalforage();">test localforage</button>
+    <button class="button button-block button-positive" onClick="testPerf();">test performance</button>
+  </ion-content>
+</ion-view>

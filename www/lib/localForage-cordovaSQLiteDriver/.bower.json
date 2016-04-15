@@ -1,6 +1,6 @@
 {
   "name": "localforage-cordovasqlitedriver",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": [
     "src/localforage-cordovasqlitedriver.js"
   ],
@@ -29,14 +29,13 @@
     "modernizr": "~2.8.1"
   },
   "homepage": "https://github.com/thgreasi/localForage-cordovaSQLiteDriver",
-  "_release": "1.0.0",
+  "_release": "1.1.0",
   "_resolution": {
     "type": "version",
-    "tag": "v1.0.0",
-    "commit": "1fa4003829da3c8ababa443145fa856fa371e884"
+    "tag": "v1.1.0",
+    "commit": "ff12d4c73764dd1f6348521d9fb6230048fa5741"
   },
   "_source": "git://github.com/thgreasi/localForage-cordovaSQLiteDriver.git",
-  "_target": "~1.0.0",
-  "_originalSource": "localForage-cordovaSQLiteDriver",
-  "_direct": true
+  "_target": "~1.1.0",
+  "_originalSource": "localForage-cordovaSQLiteDriver"
 }

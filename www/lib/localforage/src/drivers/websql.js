@@ -10,35 +10,12 @@
 (function() {
     'use strict';
 
-    // Promises!
-    var Promise = (typeof module !== 'undefined' && module.exports && typeof require !== 'undefined') ?
-                  require('promise') : this.Promise;
-
     var globalObject = this;
-    var serializer = null;
     var openDatabase = this.openDatabase;
 
     // If WebSQL methods aren't available, we can stop now.
     if (!openDatabase) {
         return;
-    }
-
-    var ModuleType = {
-        DEFINE: 1,
-        EXPORT: 2,
-        WINDOW: 3
-    };
-
-    // Attaching to window (i.e. no module loader) is the assumed,
-    // simple default.
-    var moduleType = ModuleType.WINDOW;
-
-    // Find out what kind of module setup we have; if none, we'll just attach
-    // localForage to the main window.
-    if (typeof module !== 'undefined' && module.exports && typeof require !== 'undefined') {
-        moduleType = ModuleType.EXPORT;
-    } else if (typeof define === 'function' && define.amd) {
-        moduleType = ModuleType.DEFINE;
     }
 
     // Open the WebSQL database (automatically creates one if one didn't
@@ -55,19 +32,6 @@
                             options[i].toString() : options[i];
             }
         }
-
-        var serializerPromise = new Promise(function(resolve/*, reject*/) {
-            // We allow localForage to be declared as a module or as a
-            // library available without AMD/require.js.
-            if (moduleType === ModuleType.DEFINE) {
-                require(['localforageSerializer'], resolve);
-            } else if (moduleType === ModuleType.EXPORT) {
-                // Making it browserify friendly
-                resolve(require('./../utils/serializer'));
-            } else {
-                resolve(globalObject.localforageSerializer);
-            }
-        });
 
         var dbInfoPromise = new Promise(function(resolve, reject) {
             // Open the database; the openDatabase API will automatically
@@ -94,8 +58,8 @@
             });
         });
 
-        return serializerPromise.then(function(lib) {
-            serializer = lib;
+        return System.import('./../utils/serializer').then(function(lib) {
+            dbInfo.serializer = lib;
             return dbInfoPromise;
         });
     }
@@ -105,7 +69,7 @@
 
         // Cast the key to a string, as that's all we can set as a key.
         if (typeof key !== 'string') {
-            window.console.warn(key +
+            globalObject.console.warn(key +
                                 ' used as a key, but it is not a string.');
             key = String(key);
         }
@@ -123,7 +87,7 @@
                         // Check to see if this is serialized content we need to
                         // unpack.
                         if (result) {
-                            result = serializer.deserialize(result);
+                            result = dbInfo.serializer.deserialize(result);
                         }
 
                         resolve(result);
@@ -159,7 +123,7 @@
                                 // Check to see if this is serialized content
                                 // we need to unpack.
                                 if (result) {
-                                    result = serializer.deserialize(result);
+                                    result = dbInfo.serializer.deserialize(result);
                                 }
 
                                 result = iterator(result, item.key, i + 1);
@@ -189,7 +153,7 @@
 
         // Cast the key to a string, as that's all we can set as a key.
         if (typeof key !== 'string') {
-            window.console.warn(key +
+            globalObject.console.warn(key +
                                 ' used as a key, but it is not a string.');
             key = String(key);
         }
@@ -206,11 +170,11 @@
                 // Save the original value to pass to the callback.
                 var originalValue = value;
 
-                serializer.serialize(value, function(value, error) {
+                var dbInfo = self._dbInfo;
+                dbInfo.serializer.serialize(value, function(value, error) {
                     if (error) {
                         reject(error);
                     } else {
-                        var dbInfo = self._dbInfo;
                         dbInfo.db.transaction(function(t) {
                             t.executeSql('INSERT OR REPLACE INTO ' +
                                          dbInfo.storeName +
@@ -248,7 +212,7 @@
 
         // Cast the key to a string, as that's all we can set as a key.
         if (typeof key !== 'string') {
-            window.console.warn(key +
+            globalObject.console.warn(key +
                                 ' used as a key, but it is not a string.');
             key = String(key);
         }
@@ -405,13 +369,5 @@
         keys: keys
     };
 
-    if (moduleType === ModuleType.DEFINE) {
-        define('webSQLStorage', function() {
-            return webSQLStorage;
-        });
-    } else if (moduleType === ModuleType.EXPORT) {
-        module.exports = webSQLStorage;
-    } else {
-        this.webSQLStorage = webSQLStorage;
-    }
-}).call(window);
+    export default webSQLStorage;
+}).call(typeof window !== 'undefined' ? window : self);

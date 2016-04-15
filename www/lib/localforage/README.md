@@ -56,11 +56,12 @@ It's otherwise exactly the same as the
 
 ```javascript
 // In localStorage, we would do:
-localStorage.setItem('key', JSON.stringify('value'));
-alert('value');
+var obj = { value: "hello world" };
+localStorage.setItem('key', JSON.stringify(obj));
+alert(obj.value);
 
 // With localForage, we use callbacks:
-localforage.setItem('key', 'value', function(err, value) { alert(value); });
+localforage.setItem('key', obj, function(err, result) { alert(result.value); });
 ```
 
 Similarly, please don't expect a return value from calls to
@@ -157,6 +158,26 @@ localforage.config({
 means calling `config()` before using `getItem()`, `setItem()`, `removeItem()`,
 `clear()`, `key()`, `keys()` or `length()`.
 
+## Multiple instances
+
+You can create multiple instances of localForage that point to different stores
+using `createInstance`. All the configuration options used by
+`[config](#configuration)` are supported.
+
+``` javascript
+var store = localforage.createInstance({
+  name: "nameHere"
+});
+
+var otherStore = localforage.createInstance({
+  name: "otherName"
+});
+
+// Setting the key on one of these doesn't affect the other.
+store.setItem("key", "value");
+otherStore.setItem("key", "value2");
+```
+
 ## RequireJS
 
 You can use localForage with [RequireJS](http://requirejs.org/):
@@ -171,12 +192,16 @@ define(['localforage'], function(localforage) {
 });
 ```
 
-## Web Workers
+## Browserify and Webpack
 
-Web Worker support in Firefox is blocked by [bug 701634][]. Until it is fixed,
-web workers are not officially supported by localForage.
+localForage should work with both Browserify and Webpack as of the current
+master branch. Older releases have spotty support but this will soon be fixed.
 
-[bug 701634]: https://bugzilla.mozilla.org/show_bug.cgi?id=701634
+**For browserify:** ensure that you have the
+[required plugins and transformers](https://github.com/mozilla/localForage/blob/master/package.json#L57)
+installed.
+
+**For Webpack:** currently, you need to require localForage as `require('script!localforage')` using [webpack script-loader](https://github.com/webpack/script-loader).
 
 ## Framework Support
 
@@ -213,6 +238,10 @@ dependencies. Replace `USERNAME` with your GitHub username and run the
 following:
 
 ```bash
+# Install bower and grunt globally if you don't have them:
+npm install -g bower grunt-cli
+
+# Replace USERNAME with your GitHub username:
 git clone git@github.com:USERNAME/localForage.git
 cd localForage
 npm install
@@ -233,6 +262,27 @@ a browser environment. Local tests are run on a headless WebKit (using
 
 When you submit a pull request, tests will be run against all browsers that
 localForage supports on Travis CI using [Sauce Labs](https://saucelabs.com/).
+
+## Building the API Documentation
+
+We currently use a Ruby tool to build our
+[API documentation](https://mozilla.github.io/localForage). You can install the Ruby dependencies with [Bundler](http://bundler.io):
+
+```bash
+# From inside the localForage directory
+bundle install
+```
+
+Then use `grunt` to serve the site:
+
+```bash
+grunt site
+```
+
+Navigate to [localhost:4567](http://localhost:4567/) in your browser to see the
+docs.
+
+There is an [open issue to move to a node tool for the docs](https://github.com/mozilla/localForage/issues/192).
 
 # License
 

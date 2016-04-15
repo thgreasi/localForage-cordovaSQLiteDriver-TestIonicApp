@@ -5,7 +5,13 @@
         {{playlist.title}}
       </ion-item>
     </ion-list>
-    <button class="button button-block button-positive" onClick="testLocalforage();">test localforage</button>
-    <button class="button button-block button-positive" onClick="testPerf();">test performance</button>
+    <button class="button button-block button-positive"
+    		onClick="localforageCordovasqlitedriverDemo.simpleTest();">
+		test localforage
+	</button>
+    <button class="button button-block button-positive"
+			onClick="localforageCordovasqlitedriverDemo.perfTest();">
+    	test performance
+	</button>
   </ion-content>
 </ion-view>

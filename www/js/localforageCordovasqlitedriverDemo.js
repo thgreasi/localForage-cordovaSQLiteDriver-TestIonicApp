@@ -9,12 +9,12 @@ var localforageCordovasqlitedriverDemo = (function () {
               localforage.LOCALSTORAGE
           ]);
       }).then(function() {
-        alert(localforage.driver());
+        alert('Initial driver: '+ localforage.driver());
         return localforage.setItem('testPromiseKey', 'testPromiseValue');
       }).then(function() {
         return localforage.getItem('testPromiseKey');
       }).then(function(value) {
-        alert(value);
+        alert(localforage.driver() + ' getItem: ' + value);
       }).catch(function(err) {
         alert(err);
       });

@@ -15,10 +15,7 @@
     "shelljs": "^0.3.0"
   },
   "cordovaPlugins": [
-    {
-      "locator": "https://github.com/brodysoft/Cordova-SQLitePlugin",
-      "id": "io.litehelpers.cordova.sqlite"
-    }
+    "cordova-sqlite-storage@1.2.0"
   ],
   "cordovaPlatforms": [
     "android"

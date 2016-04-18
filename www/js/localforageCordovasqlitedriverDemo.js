@@ -2,24 +2,28 @@ var localforageCordovasqlitedriverDemo = (function () {
   function simpleTest() {
     try {
       localforage.defineDriver(window.cordovaSQLiteDriver).then(function() {
-          return localforage.setDriver([
-              window.cordovaSQLiteDriver._driver,
-              localforage.INDEXEDDB,
-              localforage.WEBSQL,
-              localforage.LOCALSTORAGE
-          ]);
+        return localforage.setDriver([
+          window.cordovaSQLiteDriver._driver,
+          localforage.INDEXEDDB,
+          localforage.WEBSQL,
+          localforage.LOCALSTORAGE
+        ]);
       }).then(function() {
-        alert('Initial driver: '+ localforage.driver());
-        return localforage.setItem('testPromiseKey', 'testPromiseValue');
+        if (localforage.driver() !== window.cordovaSQLiteDriver._driver) {
+          alert('Initial driver: '+ localforage.driver());
+        }
+        return localforage.setItem('testPromiseKey', 'testPromiseValue ' + (new Date()).toString());
       }).then(function() {
         return localforage.getItem('testPromiseKey');
       }).then(function(value) {
         alert(localforage.driver() + ' getItem: ' + value);
       }).catch(function(err) {
         alert(err);
+        console.log(err);
       });
     } catch (e) {
       alert(e);
+      console.log(e);
     }
   }
 

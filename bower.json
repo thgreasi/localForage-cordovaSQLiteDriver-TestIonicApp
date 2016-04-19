@@ -6,6 +6,6 @@
   },
   "dependencies": {
     "localforage": "^1.4.0",
-    "localForage-cordovaSQLiteDriver": "https://github.com/thgreasi/localForage-cordovaSQLiteDriver"
+    "localForage-cordovaSQLiteDriver": "^1.3.0"
   }
 }

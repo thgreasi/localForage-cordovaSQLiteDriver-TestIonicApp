@@ -1,27 +1,6 @@
 angular.module('starter.controllers', [])
 
 .controller('AppCtrl', function($scope, $ionicModal, $timeout) {
-
-  // alert($cordovaSQLite);
-  // alert(window.sqlitePlugin);
-  // alert(window.cordovaSQLitedriver);
-  // try {
-
-  //   localforage.defineDriver(cordovaSQLitedriver).then(function() {
-  //       return localforage.setDriver(cordovaSQLitedriver._driver);
-  //   }).then(function() {
-  //       alert(localforage.driver());
-  //       return localforage.setItem('testPromiseKey', 'testPromiseValue');
-  //   }).then(function() {
-  //       return localforage.getItem('testPromiseKey');
-  //   }).then(function(value) {
-  //       alert(value);
-  //   }).catch(function(err) {
-  //     alert('error', err);
-  //   });
-  // } catch (e) {
-  //   alert(e);
-  // }
   
   // With the new view caching in Ionic, Controllers are only called
   // when they are recreated or on app start, instead of every page change.
@@ -74,4 +53,9 @@ angular.module('starter.controllers', [])
 })
 
 .controller('PlaylistCtrl', function($scope, $stateParams) {
+
+})
+
+.controller('DemoCtrl', function($scope) {
+  
 });

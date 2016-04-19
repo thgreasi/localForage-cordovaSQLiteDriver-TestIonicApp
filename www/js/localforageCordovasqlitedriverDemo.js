@@ -32,6 +32,7 @@ var localforageCordovasqlitedriverDemo = (function () {
 
   function perfTest() {
     var items = [];
+    var output = document.querySelector('#cordovaSQLiteDriver-output');
 
     for (var i = 0; i < 200; i++) {
       items.push({
@@ -69,13 +70,18 @@ var localforageCordovasqlitedriverDemo = (function () {
         if (driverErrors[driverName] && driverErrors[driverName].length) {
           msg += ', Errors: ' + driverErrors[driverName].length;
         }
-        alert(msg);
+        // alert(msg);
         console.log(msg);
+        if (output)  {
+          output.innerHTML += msg + '<br />';
+        }
       });
     }
 
-
-    localforage.setDriver(window.cordovaSQLiteDriver._driver).then(function(){
+    localforage.setDriver(window.cordovaSQLiteDriver._driver).then(function() {
+      if (output)  {
+        output.innerHTML = 'Started perf test at: ' + (new Date()).toString() + '<br />';
+      }
       return localforage.clear();
     }).then(timeAddAndRemove).then(function(){
       return localforage.setDriver([

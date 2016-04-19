@@ -7,11 +7,10 @@
  * Copyright (c) 2012 Niklas von Hertzen
  * Licensed under the MIT license.
  */
-(function() {
+var webSQLStorage = (function(globalObject) {
     'use strict';
 
-    var globalObject = this;
-    var openDatabase = this.openDatabase;
+    var openDatabase = globalObject.openDatabase;
 
     // If WebSQL methods aren't available, we can stop now.
     if (!openDatabase) {
@@ -40,9 +39,7 @@
                 dbInfo.db = openDatabase(dbInfo.name, String(dbInfo.version),
                                          dbInfo.description, dbInfo.size);
             } catch (e) {
-                return self.setDriver(self.LOCALSTORAGE).then(function() {
-                    return self._initStorage(options);
-                }).then(resolve).catch(reject);
+                return reject(e);
             }
 
             // Create our key/value table if it doesn't exist.
@@ -369,5 +366,6 @@
         keys: keys
     };
 
-    export default webSQLStorage;
-}).call(typeof window !== 'undefined' ? window : self);
+    return webSQLStorage;
+})(typeof window !== 'undefined' ? window : self);
+export default webSQLStorage;

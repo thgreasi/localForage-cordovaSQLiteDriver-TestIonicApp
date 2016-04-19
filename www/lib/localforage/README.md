@@ -1,4 +1,4 @@
-# localForage [![Build Status](https://secure.travis-ci.org/mozilla/localForage.png?branch=master)](http://travis-ci.org/mozilla/localForage)
+# localForage [![Build Status](https://travis-ci.org/mozilla/localForage.svg?branch=master)](http://travis-ci.org/mozilla/localForage)
 
 localForage is a fast and simple storage library for JavaScript. localForage
 improves the offline experience of your web app by using asynchronous storage
@@ -15,7 +15,7 @@ To use localForage, just drop a single JavaScript file into your page:
 ```
 
 Download the [latest localForage from GitHub](https://github.com/mozilla/localForage/releases/latest), or install with
-[npm](https://www.npmjs.org/):
+[npm](https://www.npmjs.com/):
 
 ```bash
 npm install localforage
@@ -38,7 +38,7 @@ Lost? Need help? Try the
 
 If you're stuck using the library, running the tests, or want to contribute
 to localForage, you can visit
-[irc.mozilla.org](https://wiki.mozilla.org/IRC) and head to the `#apps`
+[irc.freenode.net](https://freenode.net/) and head to the `#localforage`
 channel to ask questions about localForage.
 
 The best person to ask about localForage is [**tofumatt**][tofumatt], who
@@ -121,8 +121,8 @@ localforage.setItem('key', 'value').then(function(value) {
 });
 ```
 
-localForage relies on native [ES6 Promises](http://www.promisejs.org/), but
-[ships with an awesome polyfill](https://github.com/jakearchibald/ES6-Promises)
+localForage relies on native [ES6 Promises](https://www.promisejs.org/), but
+[ships with an awesome polyfill](https://github.com/jakearchibald/es6-promise)
 for browsers that don't support ES6 Promises yet.
 
 ## Storing Blobs, TypedArrays, and other JS objects
@@ -162,7 +162,7 @@ means calling `config()` before using `getItem()`, `setItem()`, `removeItem()`,
 
 You can create multiple instances of localForage that point to different stores
 using `createInstance`. All the configuration options used by
-`[config](#configuration)` are supported.
+[`config`](#configuration) are supported.
 
 ``` javascript
 var store = localforage.createInstance({
@@ -194,14 +194,26 @@ define(['localforage'], function(localforage) {
 
 ## Browserify and Webpack
 
-localForage should work with both Browserify and Webpack as of the current
-master branch. Older releases have spotty support but this will soon be fixed.
+localForage 1.3+ works with both Browserify and Webpack. If you're using an
+earlier version of localForage and are having issues with Browserify or
+Webpack, please upgrade to 1.3.0 or above.
 
-**For browserify:** ensure that you have the
-[required plugins and transformers](https://github.com/mozilla/localForage/blob/master/package.json#L57)
-installed.
+If you're using localForage in your own build system (eg. browserify or
+webpack) make sure you have the
+[required plugins and transformers](https://github.com/mozilla/localForage/blob/master/package.json#L24)
+installed (eg. `npm install --save-dev babel-plugin-system-import-transformer`).
 
-**For Webpack:** currently, you need to require localForage as `require('script!localforage')` using [webpack script-loader](https://github.com/webpack/script-loader).
+## TypeScript
+
+To import localForage in TypeScript:
+
+```javascript
+const localForage:LocalForage = require("localforage");
+```
+
+Note that the ES6 style import is not supported for our module type. Check out the following to know why:
+* http://stackoverflow.com/questions/29596714/new-es6-syntax-for-importing-commonjs-amd-modules-i-e-import-foo-require
+* http://www.jbrantly.com/es6-modules-with-typescript-and-webpack/
 
 ## Framework Support
 
@@ -228,9 +240,8 @@ There is a [list of custom drivers on the wiki][custom drivers].
 
 # Working on localForage
 
-You'll need [node/npm](http://nodejs.org/),
-[bower](http://bower.io/#installing-bower), and
-[Grunt](http://gruntjs.com/getting-started#installing-the-cli).
+You'll need [node/npm](http://nodejs.org/) and
+[bower](http://bower.io/#installing-bower).
 
 To work on localForage, you should start by
 [forking it](https://github.com/mozilla/localForage/fork) and installing its
@@ -238,8 +249,8 @@ dependencies. Replace `USERNAME` with your GitHub username and run the
 following:
 
 ```bash
-# Install bower and grunt globally if you don't have them:
-npm install -g bower grunt-cli
+# Install bower globally if you don't have it:
+npm install -g bower
 
 # Replace USERNAME with your GitHub username:
 git clone git@github.com:USERNAME/localForage.git
@@ -254,7 +265,7 @@ Omitting the bower dependencies will cause the tests to fail!
 
 You need PhantomJS installed to run local tests. Run `npm test` (or,
 directly: `grunt test`). Your code must also pass the
-[linter](http://www.jshint.com/).
+[linter](http://jshint.com/).
 
 localForage is designed to run in the browser, so the tests explicitly require
 a browser environment. Local tests are run on a headless WebKit (using

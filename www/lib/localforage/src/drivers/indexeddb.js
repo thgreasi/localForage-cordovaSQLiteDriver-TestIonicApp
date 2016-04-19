@@ -1,13 +1,12 @@
 // Some code originally from async_storage.js in
 // [Gaia](https://github.com/mozilla-b2g/gaia).
-(function() {
+var asyncStorage = (function(globalObject) {
     'use strict';
 
-    var globalObject = this;
     // Initialize IndexedDB; fall back to vendor-prefixed versions if needed.
-    var indexedDB = indexedDB || this.indexedDB || this.webkitIndexedDB ||
-                    this.mozIndexedDB || this.OIndexedDB ||
-                    this.msIndexedDB;
+    var indexedDB = indexedDB || globalObject.indexedDB || globalObject.webkitIndexedDB ||
+                    globalObject.mozIndexedDB || globalObject.OIndexedDB ||
+                    globalObject.msIndexedDB;
 
     // If IndexedDB isn't available, we get outta here!
     if (!indexedDB) {
@@ -125,6 +124,7 @@
                     });
                 };
             };
+            txn.onerror = txn.onabort = reject;
         }).catch(function() {
             return false; // error, so assume unsupported
         });
@@ -168,6 +168,61 @@
         return value && value.__local_forage_encoded_blob;
     }
 
+    // Specialize the default `ready()` function by making it dependent
+    // on the current database operations. Thus, the driver will be actually
+    // ready when it's been initialized (default) *and* there are no pending
+    // operations on the database (initiated by some other instances).
+    function _fullyReady(callback) {
+        var self = this;
+
+        var promise = self._initReady().then(() => {
+            var dbContext = dbContexts[self._dbInfo.name];
+
+            if (dbContext && dbContext.dbReady) {
+                return dbContext.dbReady;
+            }
+        });
+
+        promise.then(callback, callback);
+        return promise;
+    }
+
+    function _deferReadiness(dbInfo) {
+        var dbContext = dbContexts[dbInfo.name];
+
+        // Create a deferred object representing the current database operation.
+        var deferredOperation = {};
+
+        deferredOperation.promise = new Promise(function(resolve) {
+            deferredOperation.resolve = resolve;
+        });
+
+        // Enqueue the deferred operation.
+        dbContext.deferredOperations.push(deferredOperation);
+
+        // Chain its promise to the database readiness.
+        if (!dbContext.dbReady) {
+            dbContext.dbReady = deferredOperation.promise;
+        } else {
+            dbContext.dbReady = dbContext.dbReady.then(function() {
+                return deferredOperation.promise;
+            });
+        }
+    }
+
+    function _advanceReadiness(dbInfo) {
+        var dbContext = dbContexts[dbInfo.name];
+
+        // Dequeue a deferred operation.
+        var deferredOperation = dbContext.deferredOperations.pop();
+
+        // Resolve its promise (which is part of the database readiness
+        // chain of promises).
+        if (deferredOperation) {
+            deferredOperation.resolve();
+        }
+    }
+
     // Open the IndexedDB database (automatically creates one if one didn't
     // previously exist), using any options set in the config.
     function _initStorage(options) {
@@ -196,17 +251,27 @@
                 // Running localForages sharing a database.
                 forages: [],
                 // Shared database.
-                db: null
+                db: null,
+                // Database readiness (promise).
+                dbReady: null,
+                // Deferred operations on the database.
+                deferredOperations: []
             };
             // Register the new context in the global container.
             dbContexts[dbInfo.name] = dbContext;
         }
 
         // Register itself as a running localForage in the current context.
-        dbContext.forages.push(this);
+        dbContext.forages.push(self);
 
-        // Create an array of readiness of the related localForages.
-        var readyPromises = [];
+        // Replace the default `ready()` function with the specialized one.
+        if (!self._initReady) {
+            self._initReady = self.ready;
+            self.ready = _fullyReady;
+        }
+
+        // Create an array of initialization states of the related localForages.
+        var initPromises = [];
 
         function ignoreErrors() {
             // Don't handle errors here,
@@ -216,8 +281,8 @@
 
         for (var j = 0; j < dbContext.forages.length; j++) {
             var forage = dbContext.forages[j];
-            if (forage !== this) { // Don't wait for itself...
-                readyPromises.push(forage.ready().catch(ignoreErrors));
+            if (forage !== self) { // Don't wait for itself...
+                initPromises.push(forage._initReady().catch(ignoreErrors));
             }
         }
 
@@ -226,7 +291,7 @@
 
         // Initialize the connection process only when
         // all the related localForages aren't pending.
-        return Promise.all(readyPromises).then(function() {
+        return Promise.all(initPromises).then(function() {
             dbInfo.db = dbContext.db;
             // Get the connection or open a new one without upgrade.
             return _getOriginalConnection(dbInfo);
@@ -241,7 +306,7 @@
             dbInfo.db = dbContext.db = db;
             self._dbInfo = dbInfo;
             // Share the final connection amongst related localForages.
-            for (var k in forages) {
+            for (var k = 0; k < forages.length; k++) {
                 var forage = forages[k];
                 if (forage !== self) { // Self is already up-to-date.
                     forage._dbInfo.db = dbInfo.db;
@@ -261,8 +326,10 @@
 
     function _getConnection(dbInfo, upgradeNeeded) {
         return new Promise(function(resolve, reject) {
+
             if (dbInfo.db) {
                 if (upgradeNeeded) {
+                    _deferReadiness(dbInfo);
                     dbInfo.db.close();
                 } else {
                     return resolve(dbInfo.db);
@@ -305,6 +372,7 @@
 
             openreq.onsuccess = function() {
                 resolve(openreq.result);
+                _advanceReadiness(dbInfo);
             };
         });
     }
@@ -444,10 +512,13 @@
             var dbInfo;
             self.ready().then(function() {
                 dbInfo = self._dbInfo;
-                return _checkBlobSupport(dbInfo.db);
-            }).then(function(blobSupport) {
-                if (!blobSupport && value instanceof Blob) {
-                    return _encodeBlob(value);
+                if (value instanceof Blob) {
+                    return _checkBlobSupport(dbInfo.db).then(function(blobSupport) {
+                        if (blobSupport) {
+                            return value;
+                        }
+                        return _encodeBlob(value);
+                    });
                 }
                 return value;
             }).then(function(value) {
@@ -462,7 +533,6 @@
                     value = undefined;
                 }
 
-                var req = store.put(value, key);
                 transaction.oncomplete = function() {
                     // Cast to undefined so the value passed to
                     // callback/promise is the same as what one would get out
@@ -480,6 +550,8 @@
                     var err = req.error ? req.error : req.transaction.error;
                     reject(err);
                 };
+
+                var req = store.put(value, key);
             }).catch(reject);
         });
 
@@ -689,5 +761,6 @@
         keys: keys
     };
 
-    export default asyncStorage;
-}).call(typeof window !== 'undefined' ? window : self);
+    return asyncStorage;
+})(typeof window !== 'undefined' ? window : self);
+export default asyncStorage;

@@ -15,7 +15,7 @@
     "shelljs": "^0.3.0"
   },
   "cordovaPlugins": [
-    "cordova-sqlite-storage@1.2.0"
+    "cordova-plugin-sqlite-2"
   ],
   "cordovaPlatforms": [
     "android"

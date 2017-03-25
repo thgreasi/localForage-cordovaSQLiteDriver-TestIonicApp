@@ -1,5 +1,6 @@
 .DS_Store
 .swp
+build
 bower_components
 node_modules
 components

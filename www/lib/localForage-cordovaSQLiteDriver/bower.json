@@ -1,8 +1,8 @@
 {
   "name": "localforage-cordovasqlitedriver",
-  "version": "1.3.0",
+  "version": "1.6.0",
   "main": [
-    "src/localforage-cordovasqlitedriver.js"
+    "dist/localforage-cordovasqlitedriver.js"
   ],
   "ignore": [
     ".travis.yml",
@@ -18,14 +18,6 @@
     "site*"
   ],
   "dependencies": {
-    "localforage": "^1.4.0"
-  },
-  "devDependencies": {
-    "es6-promise": "~1.0.0",
-    "requirejs": "~2.1.10",
-    "mocha": "~1.18.2",
-    "expect": "~0.3.1",
-    "assert": "~0.1.0",
-    "modernizr": "~2.8.1"
+    "localforage": "^1.5.0"
   }
 }

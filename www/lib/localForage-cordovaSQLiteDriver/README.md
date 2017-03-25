@@ -5,14 +5,18 @@ SQLite driver for [Cordova](https://cordova.apache.org/) apps using [localForage
 ## Requirements
 
 * [Cordova](https://cordova.apache.org/)/[ionic](http://ionicframework.com/)
-* [Cordova SQLite storage plugin](https://github.com/litehelpers/Cordova-sqlite-storage/)
-* [localForage](https://github.com/mozilla/localForage) v1.4.0+
-  * for earlier versions of localforage, please use the v1.2.x releases
+* [Cordova SQLite storage plugin](https://github.com/litehelpers/Cordova-sqlite-storage/) or [Cordova SQLite Plugin 2](https://github.com/nolanlawson/cordova-plugin-sqlite-2)
+* [localForage](https://github.com/mozilla/localForage) v1.5.0+
+  * for localforage 1.4.x, please use the v1.5.0 release of this package
+  * for even older versions of localforage, please use the v1.2.x releases
+
 
 ## Install Dependencies
 
 * install Cordova-sqlite-storage plugin `cordova plugin add https://github.com/litehelpers/Cordova-sqlite-storage.git`
-* install localForage-cordovaSQLiteDriver `bower install --save localForage-cordovaSQLiteDriver`
+* install localForage-cordovaSQLiteDriver
+  * via npm with: `npm i --save localforage localforage-cordovasqlitedriver` (ionic 2 users might prefer ths one)
+  * via bower with: `bower install --save localforage localForage-cordovaSQLiteDriver`
 
 ## CHANGELOG
 
@@ -36,7 +40,7 @@ Try using the `getSerializer()` (available in localforage v1.3) as the prefered 
 <script src="cordova.js"></script>
 
 <script src="lib/localforage/dist/localforage.js"></script>
-<script src="lib/localForage-cordovaSQLiteDriver/src/localforage-cordovasqlitedriver.js"></script>
+<script src="lib/localForage-cordovaSQLiteDriver/dist/localforage-cordovasqlitedriver.js"></script>
 <script>
 localforage.defineDriver(window.cordovaSQLiteDriver).then(function() {
     return localforage.setDriver([
@@ -62,4 +66,7 @@ localforage.defineDriver(window.cordovaSQLiteDriver).then(function() {
 });
 </script>
 ```
-[Exaple Ionic project](https://github.com/thgreasi/localForage-cordovaSQLiteDriver-TestIonicApp)
+
+## Examples
+* [Exaple Cordova/Ionic project](https://github.com/thgreasi/localForage-cordovaSQLiteDriver-TestIonicApp)
+* [Exaple Ionic2/Angular2/Typescript project](https://github.com/thgreasi/localForage-cordovaSQLiteDriver-TestIonic2App)

@@ -1,34 +1,28 @@
 var localforageCordovasqlitedriverDemo = (function () {
-  function simpleTest() {
-    try {
-      localforage.defineDriver(window.cordovaSQLiteDriver).then(function() {
-        return localforage.setDriver([
-          window.cordovaSQLiteDriver._driver,
-          localforage.INDEXEDDB,
-          localforage.WEBSQL,
-          localforage.LOCALSTORAGE
-        ]);
-      }).then(function() {
-        if (localforage.driver() !== window.cordovaSQLiteDriver._driver) {
-          alert('Initial driver: '+ localforage.driver());
-        }
-        return localforage.setItem('testPromiseKey', 'testPromiseValue ' + (new Date()).toString());
-      }).then(function() {
-        return localforage.getItem('testPromiseKey');
-      }).then(function(value) {
-        alert(localforage.driver() + ' getItem: ' + value);
-      }).catch(function(err) {
-        alert(err);
-        console.log(err);
-      });
-    } catch (e) {
-      alert(e);
-      console.log(e);
-    }
+
+  function LFSave(testPromiseKey, testPromiseValue) {
+    localforage.defineDriver(window.cordovaSQLiteDriver).then(function() {
+      return localforage.setDriver([
+        window.cordovaSQLiteDriver._driver,
+        localforage.INDEXEDDB,
+        localforage.WEBSQL,
+        localforage.LOCALSTORAGE
+      ]);
+    }).then(function() {
+      alert('Initial driver: ' + localforage.driver());
+      return localforage.setItem(testPromiseKey, testPromiseValue);
+    }).then(function() {
+      return localforage.getItem(testPromiseKey);
+    }).then(function(value) {
+      alert(value);
+    }).catch(function(err) {
+      alert(err);
+      console.log(err);
+    });
   }
 
   // no need to wait for anything
-  simpleTest();
+  LFSave("testPromiseKey", "testPromiseValue");
 
   function perfTest() {
     var items = [];
@@ -96,7 +90,7 @@ var localforageCordovasqlitedriverDemo = (function () {
   }
 
   return {
-    simpleTest: simpleTest,
+    LFSave: LFSave,
     perfTest: perfTest
   };
 })();
